@@ -19,6 +19,11 @@ class ProductListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configuration()
+        setupNavBarButton()
+    }
+    
+    func setupNavBarButton() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .add)
     }
 }
 
@@ -80,8 +85,25 @@ extension ProductListViewController: UITableViewDataSource, UITableViewDelegate 
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let vc = ProductDetailsViewController()
-        vc.id = viewModel.products[indexPath.row].id
-        self.navigationController?.pushViewController(vc, animated: true)
+        let vc = storyboard?.instantiateViewController(withIdentifier: "ProductDetailsViewController") as? ProductDetailsViewController
+        vc?.id = viewModel.products[indexPath.row].id
+        self.navigationController?.pushViewController(vc ?? UIViewController(), animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+
+        // action one
+        let editAction = UITableViewRowAction(style: .default, title: "Edit", handler: { (action, indexPath) in
+            print("Edit tapped")
+        })
+        editAction.backgroundColor = UIColor.blue
+
+        // action two
+        let deleteAction = UITableViewRowAction(style: .default, title: "Delete", handler: { (action, indexPath) in
+            print("Delete tapped")
+        })
+        deleteAction.backgroundColor = UIColor.red
+
+        return [editAction, deleteAction]
     }
 }

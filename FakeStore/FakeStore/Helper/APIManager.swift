@@ -80,4 +80,47 @@ final class APIManager {
         }.resume()
     }
     
+    
+    func addProducts(title: String?, price: Int?, description: String?, image: String?, category: String?, completion: @escaping Handler) {
+        guard let url = URL(string: Constant.FakeStoreAPI.productListingURL) else { return }
+
+        let parameters = [
+            "title": title ?? "test product",
+            "price": price ?? 13.5,
+            "description": description ?? "lorem ipsum set",
+            "image": image ?? "https://i.pravatar.cc",
+            "category": category ?? "electronic"
+        ] as [String : Any]
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST" //set http method as POST
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
+        } catch {
+            print(error.localizedDescription)
+        }
+
+        // BackGround Task
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data, error == nil else {
+                completion(.failure(.invalidData))
+                return
+            }
+            
+            guard let response = response as? HTTPURLResponse,
+                  200 ... 299 ~= response.statusCode else {
+                completion(.failure(.invalidResponse))
+                return
+            }
+            do {
+                let products = try JSONDecoder().decode([Product].self, from: data)
+                completion(.success(products))
+            }catch {
+                completion(.failure(.network(error)))
+            }
+        }.resume()
+    }
+    
+    
 }

@@ -10,31 +10,24 @@ import UIKit
 class ProductDetailsViewController: UIViewController {
     
     //MARK: -- IBOutlets
-    @IBOutlet weak var productImageView: UIImageView!
-    @IBOutlet weak var productTitleLabel: UILabel!
-    @IBOutlet weak var productCategoryLabel: UILabel!
-    @IBOutlet weak var rateButton: UIButton!
-    @IBOutlet weak var productDescriptionLabel: UILabel!
-    @IBOutlet weak var priceLabel: UILabel!
-    
+    @IBOutlet weak var productDetailsTitleLabel: UILabel?
+    @IBOutlet weak var productDetailsCategoryLabel: UILabel?
+    @IBOutlet weak var productDescriptionDetailsLabel: UILabel?
+    @IBOutlet weak var priceLabel: UILabel?
+    @IBOutlet weak var rateButton: UIButton?
+    @IBOutlet weak var productDetailsImageView: UIImageView!
     
     static let identifier = "ProductDetailsViewController"
     // MARK: - Variables
     private var viewModel = ProductDetailsViewModel()
-    var id: Int = 1
-    
+    var id: Int?
+
     // MARK: - ViewController LifeCycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .brown
         configuration()
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        self.productDetailsConfiguration()
-    }
-
 }
 
 
@@ -45,7 +38,7 @@ extension ProductDetailsViewController {
     }
     
     func initViewModel() {
-        viewModel.fetchProductDetailsApi(id: id)
+        viewModel.fetchProductDetailsApi(id: id ?? 1)
     }
     
     // Data Binding Event Observe Krega - Communication
@@ -58,7 +51,7 @@ extension ProductDetailsViewController {
             case .stopLoading: break
             case .dataLoaded:
                 DispatchQueue.main.async {
-//                    self.viewModel.products
+                    self.productDetailsConfiguration(products: self.viewModel.products)
                 }
             case .error(let error):
                 print(error as Any)
@@ -68,12 +61,12 @@ extension ProductDetailsViewController {
     }
     
     //MARK: - Products items Configuration
-    func productDetailsConfiguration() {
-        self.productTitleLabel.text = self.viewModel.products?.title
-        productCategoryLabel.text = viewModel.products?.category
-        productDescriptionLabel.text = viewModel.products?.description
-        priceLabel.text = "$\(String(describing: viewModel.products?.price))"
-        rateButton.setTitle(" \(String(describing: viewModel.products?.rating.rate))", for: .normal)
-        productImageView.setImage(with: viewModel.products?.image ?? "" )
+    func productDetailsConfiguration(products: Product?) {
+        productDetailsTitleLabel?.text = products?.title
+        productDetailsCategoryLabel?.text = products?.category
+        productDescriptionDetailsLabel?.text = products?.description
+        priceLabel?.text = "$\(products?.price ?? 20)"
+        rateButton?.setTitle("\(products?.rating.rate ?? 4)", for: .normal)
+        productDetailsImageView?.setImage(with: products?.image ?? "" )
     }
 }
